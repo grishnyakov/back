@@ -22,7 +22,7 @@ module.exports.getMessages = function(req,res){
     let arr_devices = req.body.devices;
     console.log('module.exports.getMessages devices: ',arr_devices);
     // Создаётся объект promise
-    let query = "SELECT * FROM groups_message INNER JOIN messages ON  groups_message.id = messages.id_group WHERE id_device = ?";
+    let query = "SELECT * FROM groups_message INNER JOIN messages ON  groups_message.id = messages.id_group WHERE id_device = ? LIMIT 200";
     connectionDevMes.query(query,[arr_devices[0]], function(error, result, fields){
         if(!error) {
             res.json({success:true, messages:result});
@@ -52,9 +52,7 @@ module.exports.getDevices = function(req,res){
                         res.json({success:true, devices:result});
                     }
                     else{
-
                         returnError(res,Error.message);
-
                     }
                 });
             }else{

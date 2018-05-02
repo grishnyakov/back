@@ -1,9 +1,7 @@
 /**
  * Created by Sergio on 20.04.2018.
  */
-module.exports.GlobalVars = {
-    origin: 'http://localhost:8080'
-};
+
 module.exports.DataServiceConfig = {
     ip: 'localhost',
     port: 3666,
