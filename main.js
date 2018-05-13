@@ -85,7 +85,12 @@ app.post('/logout',function (req, res) {
 
 
 
-
+app.post('/data/dangerlist',function (req, res) {
+    console.log("client req getMessages");
+    // if(req.session.username)
+    DataService.getDangerList(req,res);
+    // else res.status(403);
+});
 app.post('/data/messages',function (req, res) {
     console.log("client req getMessages");
    // if(req.session.username)
