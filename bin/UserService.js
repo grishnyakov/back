@@ -16,6 +16,18 @@ let connectionUsers = mysql.createPool({
 
 
 
+module.exports.registerUser = function (id_org, login, id_role, password, name1, name2, name3, number_tel, callback) {
+    if(!id_org) id_org = 0; // без организации
+
+    console.log("registerUser",id_org, login, id_role, password, name1, name2, name3, number_tel);
+
+
+    //INSERT INTO `users`.`users` (`id_org`, `login`, `id_role`, `password`, `name1`, `name2`, `name3`, `number_tel`)
+    // VALUES ('1', 'admin', '5', 'admin', 'Admin', 'Adminov', 'Adminovich', '79225745816');
+
+    executeQuery('INSERT INTO users (`id_org`, `login`, `id_role`, `password`, `name1`, `name2`, `name3`, `number_tel`) ' +
+        'VALUES(?, ?, ?, ?, ?, ?, ?, ?)',[ id_org, login, id_role, password, name1, name2, name3, number_tel ],callback);
+};
 
 module.exports.login = function (login, password, callback) {
     console.log("login",login,password);

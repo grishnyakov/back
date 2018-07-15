@@ -6,7 +6,7 @@ module.exports.DataServiceConfig = {
     ip: 'localhost',
     port: 3666,
     db_host     : 'localhost',
-    db_port     : 3306,
+    db_port     : 5502,
     db_user     : 'root',
     db_password : 'blackhole',
     db_database : 'servergprs'
@@ -15,7 +15,7 @@ module.exports.UserServiceConfig = {
     ip: 'localhost',
     port: 3667,
     db_host     : 'localhost',
-    db_port     : 3306,
+    db_port     : 5502,
     db_user     : 'root',
     db_password : 'blackhole',
     db_database : 'users'

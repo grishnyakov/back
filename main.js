@@ -54,12 +54,45 @@ app.post('/login',function (req, res) {
             }
         }
         else {
-            res.send({success:"false"});
+            res.send({success:false});
         }
 
     });
 
 
+});
+app.post('/reguser',function (req, res) {
+    console.log("Client try REGISTER NEW USER:", req.body);
+
+
+    if(!req.body.login) res.send({success:false,error: "Empty login"});
+    else if(!req.body.password) res.send({success:false,error: "Empty password"});
+    else if(!req.body.number_tel) res.send({success:false,error: "Empty number_tel"});
+    else if(!req.body.id_role) res.send({success:false,error: "Empty id_role"});
+    else if(!req.body.name1) res.send({success:false,error: "Empty name1"});
+    else{
+        UserService.registerUser(
+            req.body.id_org,
+            req.body.login,
+            req.body.id_role,
+            req.body.password,
+            req.body.name1,
+            req.body.name2,
+            req.body.name3,
+            req.body.number_tel,function (result, error) {
+                if(!error && result) {
+                    //console.log("registerUser:result",result);
+                    if(result.affectedRows > 0) {
+                        let id = result.insertId;
+                        res.send({success:true,id: id});
+                    }
+                }
+                else {
+                    console.error(error);
+                    res.send({success:false});
+                }
+            });
+    }
 });
 app.post('/logout',function (req, res) {
     console.log("Logout ");
