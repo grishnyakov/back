@@ -110,13 +110,13 @@ module.exports.getDangerList = function(req,res){
 
 };
 module.exports.getDevices = function(req,res){
-    let username = req.body.username;
-    console.log('module.exports.getDevices username: ',username);
+    let login = req.body.login;
+    console.log('module.exports.getDevices login: ',login);
     // Создаётся объект promise
     let promise = new Promise((resolve, reject) => {
-        if(username)
-            UserService.getUserID(username,resolve);
-        else reject("username is not defined");
+        if(login)
+            UserService.getUserID(login,resolve);
+        else reject("login is not defined");
     });
     promise.then(
         result => {

@@ -43,14 +43,14 @@ app.use("/client",  express.static(__dirname + '/client'));
 
 app.post('/login',function (req, res) {
     console.log("Client try LOGIN:", req.body);
-    UserService.login(req.body.username,req.body.password,function (result, error) {
+    UserService.login(req.body.login,req.body.password,function (result, error) {
         if(!error && result) {
             //console.log("createSession:result",result);
             if(result.length > 0) {
-                let username = result[0].login;
+                let login = result[0].login;
 
-                req.session.username = username;
-                res.send({success:true,username: username});
+                req.session.login = login;
+                res.send({success:true,login: login});
             }
         }
         else {
@@ -97,15 +97,15 @@ app.post('/reguser',function (req, res) {
 app.post('/logout',function (req, res) {
     console.log("Logout ");
     if(req.session)
-        if(req.session.username) {
-            console.log("req.session.username: ",req.session.username);
-            req.session.username = '';
+        if(req.session.login) {
+            console.log("req.session.login: ",req.session.login);
+            req.session.login = '';
             res.send({success:true});
             console.log("success:true ");
         }
         else{
             res.send({success:false});
-            console.log("success:false 1 - req.session.username is empty", req.session);
+            console.log("success:false 1 - req.session.login is empty", req.session);
         }
     else {
         res.send({success:false});
@@ -120,19 +120,19 @@ app.post('/logout',function (req, res) {
 
 app.post('/data/dangerlist',function (req, res) {
     console.log("client req getMessages");
-    // if(req.session.username)
+    // if(req.session.login)
     DataService.getDangerList(req,res);
     // else res.status(403);
 });
 app.post('/data/messages',function (req, res) {
     console.log("client req getMessages");
-   // if(req.session.username)
+   // if(req.session.login)
         DataService.getMessages(req,res);
    // else res.status(403);
 });
 app.post('/data/devices',function (req, res) {
     console.log("client req getDevices");
-   // if(req.session.username)
+   // if(req.session.login)
         DataService.getDevices(req,res);
   //  else res.status(403);
 });
@@ -141,11 +141,11 @@ app.post('/data/devices',function (req, res) {
 
 app.post('/user/orginfo',function (req, res) {
     console.log("client reqest orginfo");
-    // if(req.session.username)
-    let user = req.body.username;
+    // if(req.session.login)
+    let user = req.body.login;
     UserService.getOrgInfo(user,function (result,error) {
         if(!error){
-            res.send({"success":true , "data": result[0]});
+            res.send({"success":true , "orginfo": result[0]});
         }
         else res.json({"success":false});
     });
