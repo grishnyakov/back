@@ -35,17 +35,17 @@ module.exports.login = function (login, password, callback) {
 };
 module.exports.logout = function (login, password,req, res) {
     console.log("logout",login,password);
-    req.session.username = "";
+    req.session.login = "";
     res.send({success:true});
 };
-module.exports.getUserID = function (username,callback) {
-    executeQuery('SELECT id FROM users WHERE login=?',username,callback);
+module.exports.getUserID = function (login,callback) {
+    executeQuery('SELECT id FROM users WHERE login=?',login,callback);
 };
 
-module.exports.getOrgInfo = function (username,callback) {
+module.exports.getOrgInfo = function (login,callback) {
     executeQuery('SELECT organizations.* \n' +
         'FROM users INNER JOIN organizations on users.id_org = organizations.id \n' +
-        'WHERE login = ?;',username,callback);
+        'WHERE login = ?;',login,callback);
 };
 
 
