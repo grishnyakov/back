@@ -31,7 +31,7 @@ module.exports.getMessages = function(req,res){
         query = "SELECT * FROM groups_message WHERE id_device = ? LIMIT 50";
 
     if(type === "messages")
-         query = "SELECT * FROM groups_message INNER JOIN messages ON  groups_message.id = messages.id_group WHERE id_device = ? LIMIT 200";
+         query = "SELECT * FROM groups_message INNER JOIN messages ON  groups_message.id = messages.id_group WHERE id_device = ? LIMIT 500";
 
     // Создаётся объект promise
    connectionDevMes.query(query,[params], function(error, result, fields){

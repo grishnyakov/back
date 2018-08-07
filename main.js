@@ -19,7 +19,8 @@ let DataService = require("./bin/DataService"); //Данные основные
 
 // use it before all route definitions
 app.use(cors({
-    origin: "http://localhost:8080",
+    origin: "http://89.31.33.164:8080",
+   // origin: "http://localhost:8080",
     credentials: true,
 }));
 app.use(bodyParser.json());
@@ -34,7 +35,7 @@ app.use(session({
 let port = 7877;
 
 app.use(express.static('client'));
-app.listen(port, function () {
+app.listen(port,'89.31.33.164', function () {
     console.log('Main is running on port ' + port);
 });
 
@@ -50,7 +51,7 @@ app.post('/login',function (req, res) {
                 let username = result[0].login;
 
                 req.session.username = username;
-                res.send({success:true,username: username});
+                res.send({success:true, username: username});
             }
         }
         else {
