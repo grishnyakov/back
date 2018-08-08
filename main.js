@@ -7,7 +7,7 @@ let session = require('express-session');
 
 let bodyParser = require('body-parser');
 let cors = require('cors');
-let path  = require('path');
+let path = require('path');
 
 let sessionHandler = require('./bin/session_handler');
 let store = sessionHandler.createStore();
@@ -38,39 +38,37 @@ app.listen(port, function () {
     console.log('Main is running on port ' + port);
 });
 
-app.use("/client",  express.static(__dirname + '/client'));
+app.use("/client", express.static(__dirname + '/client'));
 
 
-app.post('/login',function (req, res) {
+app.post('/login', function (req, res) {
     console.log("Client try LOGIN:", req.body);
-    UserService.login(req.body.login,req.body.password,function (result, error) {
-        if(!error && result) {
+    UserService.login(req.body.login, req.body.password, function (result, error) {
+        if (!error && result) {
             //console.log("createSession:result",result);
-            if(result.length > 0) {
-                let login = result[0].login;
-
-                req.session.login = login;
-                res.send({success:true,login: login});
+            if (result.length > 0) {
+                req.session.id_user = result[0].id;
+                res.send({success: true, login: result[0].login});
             }
         }
         else {
-            res.send({success:false});
+            res.send({success: false});
         }
 
     });
 
 
 });
-app.post('/reguser',function (req, res) {
+app.post('/reguser', function (req, res) {
     console.log("Client try REGISTER NEW USER:", req.body);
 
 
-    if(!req.body.login) res.send({success:false,error: "Empty login"});
-    else if(!req.body.password) res.send({success:false,error: "Empty password"});
-    else if(!req.body.number_tel) res.send({success:false,error: "Empty number_tel"});
-    else if(!req.body.id_role) res.send({success:false,error: "Empty id_role"});
-    else if(!req.body.name1) res.send({success:false,error: "Empty name1"});
-    else{
+    if (!req.body.login) res.send({success: false, error: "Empty login"});
+    else if (!req.body.password) res.send({success: false, error: "Empty password"});
+    else if (!req.body.number_tel) res.send({success: false, error: "Empty number_tel"});
+    else if (!req.body.id_role) res.send({success: false, error: "Empty id_role"});
+    else if (!req.body.name1) res.send({success: false, error: "Empty name1"});
+    else {
         UserService.registerUser(
             req.body.id_org,
             req.body.login,
@@ -79,75 +77,67 @@ app.post('/reguser',function (req, res) {
             req.body.name1,
             req.body.name2,
             req.body.name3,
-            req.body.number_tel,function (result, error) {
-                if(!error && result) {
+            req.body.number_tel, function (result, error) {
+                if (!error && result) {
                     //console.log("registerUser:result",result);
-                    if(result.affectedRows > 0) {
+                    if (result.affectedRows > 0) {
                         let id = result.insertId;
-                        res.send({success:true,id: id});
+                        res.send({success: true, id: id});
                     }
                 }
                 else {
                     console.error(error);
-                    res.send({success:false});
+                    res.send({success: false});
                 }
             });
     }
 });
-app.post('/logout',function (req, res) {
+app.post('/logout', function (req, res) {
     console.log("Logout ");
-    if(req.session)
-        if(req.session.login) {
-            console.log("req.session.login: ",req.session.login);
-            req.session.login = '';
-            res.send({success:true});
-            console.log("success:true ");
-        }
-        else{
-            res.send({success:false});
-            console.log("success:false 1 - req.session.login is empty", req.session);
-        }
+    if (req.session) {
+        console.log("req.session.id_user: ", req.session.id_user);
+        req.session.destroy(function (err) {
+            if (!err) res.send({success: true});
+            else res.send({success: false});
+        });
+    }
     else {
-        res.send({success:false});
+        res.send({success: false});
         console.error("success:false - req.session is empty");
     }
 
 });
 
 
-
-
-
-app.post('/data/dangerlist',function (req, res) {
+app.post('/data/dangerlist', function (req, res) {
     console.log("client req getMessages");
     // if(req.session.login)
-    DataService.getDangerList(req,res);
+    DataService.getDangerList(req, res);
     // else res.status(403);
 });
-app.post('/data/messages',function (req, res) {
+app.post('/data/messages', function (req, res) {
     console.log("client req getMessages");
-   // if(req.session.login)
-        DataService.getMessages(req,res);
-   // else res.status(403);
+    // if(req.session.login)
+    DataService.getMessages(req, res);
+    // else res.status(403);
 });
-app.post('/data/devices',function (req, res) {
+app.post('/data/devices', function (req, res) {
     console.log("client req getDevices");
-   // if(req.session.login)
-        DataService.getDevices(req,res);
-  //  else res.status(403);
+    // if(req.session.login)
+    DataService.getDevices(req, res);
+    //  else res.status(403);
 });
 
 
-
-app.post('/user/orginfo',function (req, res) {
+app.post('/user/orginfo', function (req, res) {
     console.log("client reqest orginfo");
     // if(req.session.login)
     let user = req.body.login;
-    UserService.getOrgInfo(user,function (result,error) {
-        if(!error){
-            res.send({"success":true , "orginfo": result[0]});
+    UserService.getOrgInfo(user, function (result, error) {
+        if (!error) {
+            res.send({"success": true, "orginfo": result[0]});
         }
-        else res.json({"success":false});
+        else res.json({"success": false});
     });
     // else res.status(403);
 });
