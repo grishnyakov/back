@@ -5,6 +5,8 @@ let express = require('express');
 let config = require('./config');
 let DataService = require('./UserService');
 let mysql = require('promise-mysql');
+const crypto = require('crypto');
+
 
 let connectionUsers = mysql.createPool({
     host     : config.UserServiceConfig.db_host,
@@ -14,14 +16,18 @@ let connectionUsers = mysql.createPool({
     database : config.UserServiceConfig.db_database
 });
 
-
+let encryptPassword = function(password){
+    const hashPassword = crypto.createHmac('sha256', "secretWord.")
+        .update(password)
+        .digest('hex');
+    console.log("hashPassword:",hashPassword);
+    return hashPassword;
+};
 
 module.exports.registerUser = function (id_org, login, id_role, password, name1, name2, name3, number_tel, callback) {
     if(!id_org) id_org = 0; // без организации
-
-    console.log("registerUser",id_org, login, id_role, password, name1, name2, name3, number_tel);
     executeQuery('INSERT INTO users (`id_org`, `login`, `id_role`, `password`, `name1`, `name2`, `name3`, `number_tel`) ' +
-        'VALUES(?, ?, ?, ?, ?, ?, ?, ?)',[ id_org, login, id_role, password, name1, name2, name3, number_tel ],callback);
+        'VALUES(?, ?, ?, ?, ?, ?, ?, ?)',[ id_org, login, id_role, encryptPassword(password), name1, name2, name3, number_tel ],callback);
 };
 
 module.exports.createPlace = function (data, callback) {
@@ -35,8 +41,7 @@ module.exports.getPlace = function (place_id, callback) {
 };
 
 module.exports.login = function (login, password, callback) {
-    console.log("login",login,password);
-    executeQuery('SELECT * FROM users WHERE login=? && password=?',[ login, password ],callback);
+    executeQuery('SELECT * FROM users WHERE login=? && password=?',[ login, encryptPassword(password) ],callback);
 };
 module.exports.logout = function (login, password,req, res) {
     console.log("logout",login,password);
