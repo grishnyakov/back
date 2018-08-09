@@ -20,13 +20,18 @@ module.exports.registerUser = function (id_org, login, id_role, password, name1,
     if(!id_org) id_org = 0; // без организации
 
     console.log("registerUser",id_org, login, id_role, password, name1, name2, name3, number_tel);
-
-
-    //INSERT INTO `users`.`users` (`id_org`, `login`, `id_role`, `password`, `name1`, `name2`, `name3`, `number_tel`)
-    // VALUES ('1', 'admin', '5', 'admin', 'Admin', 'Adminov', 'Adminovich', '79225745816');
-
     executeQuery('INSERT INTO users (`id_org`, `login`, `id_role`, `password`, `name1`, `name2`, `name3`, `number_tel`) ' +
         'VALUES(?, ?, ?, ?, ?, ?, ?, ?)',[ id_org, login, id_role, password, name1, name2, name3, number_tel ],callback);
+};
+
+module.exports.createPlace = function (data, callback) {
+    console.log("createPlace", ...data);
+    executeQuery('INSERT INTO places (`place_id`,`lat`, `lng`, `formatted_address`) ' +
+        'VALUES(?, ?, ?, ?)',[ ...data ],callback);
+};
+module.exports.getPlace = function (place_id, callback) {
+    console.log("getPlace", place_id);
+    executeQuery('SELECT * FROM places WHERE `place_id`=?',[ place_id ],callback);
 };
 
 module.exports.login = function (login, password, callback) {
@@ -65,5 +70,4 @@ function executeQuery(query,params,callback) {
             });
     }
     else throw Error("USERSERVICE:executeQuery - Empty query or callback. Tell me it's.");
-
 }

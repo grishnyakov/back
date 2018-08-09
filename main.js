@@ -123,8 +123,14 @@ app.post('/data/messages', function (req, res) {
 });
 app.post('/data/devices', function (req, res) {
     console.log("client req getDevices");
+     //if(req.session.id)
+        DataService.getDevices(req, res);
+      //else res.status(403);
+});
+app.post('/data/devices/bind', function (req, res) {
+    console.log("client bind device");
     // if(req.session.login)
-    DataService.getDevices(req, res);
+    DataService.bindDevice(req, res);
     //  else res.status(403);
 });
 
