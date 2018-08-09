@@ -41,6 +41,7 @@ app.listen(port, function () {
 app.use("/client", express.static(__dirname + '/client'));
 
 
+
 app.post('/login', function (req, res) {
     console.log("Client try LOGIN:", req.body);
     UserService.login(req.body.login, req.body.password, function (result, error) {
@@ -58,6 +59,37 @@ app.post('/login', function (req, res) {
     });
 
 
+});
+app.post('/logout', function (req, res) {
+    console.log("Logout ");
+    if (req.session) {
+        console.log("req.session.id_user: ", req.session.id_user);
+        req.session.destroy(function (err) {
+            if (!err) res.send({success: true});
+            else res.send({success: false});
+        });
+    }
+    else {
+        res.send({success: false});
+        console.error("success:false - req.session is empty");
+    }
+
+});
+app.post('/getSession', function (req, res) {
+    console.log("Client try get Session:", req.body);
+    if(req.session){
+        UserService.getUserLoginByID(req.session.id_user, function (result, error) {
+            if (!error && result) {
+                //console.log("createSession:result",result);
+                if (result.length > 0) {
+                    res.send({success: true, login: result[0].login});
+                }
+                else res.send({success: false});
+            }
+            else res.send({success: false});
+        });
+    }
+    else  res.send({success: false});
 });
 app.post('/reguser', function (req, res) {
     console.log("Client try REGISTER NEW USER:", req.body);
@@ -92,21 +124,9 @@ app.post('/reguser', function (req, res) {
             });
     }
 });
-app.post('/logout', function (req, res) {
-    console.log("Logout ");
-    if (req.session) {
-        console.log("req.session.id_user: ", req.session.id_user);
-        req.session.destroy(function (err) {
-            if (!err) res.send({success: true});
-            else res.send({success: false});
-        });
-    }
-    else {
-        res.send({success: false});
-        console.error("success:false - req.session is empty");
-    }
 
-});
+
+
 
 
 app.post('/data/dangerlist', function (req, res) {

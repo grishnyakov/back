@@ -43,8 +43,11 @@ module.exports.logout = function (login, password,req, res) {
     req.session.login = "";
     res.send({success:true});
 };
-module.exports.getUserID = function (login,callback) {
+module.exports.getUserIdByLogin = function (login, callback) {
     executeQuery('SELECT id FROM users WHERE login=?',login,callback);
+};
+module.exports.getUserLoginByID = function (id,callback) {
+    executeQuery('SELECT login FROM users WHERE id=?',id,callback);
 };
 
 module.exports.getOrgInfo = function (login,callback) {
