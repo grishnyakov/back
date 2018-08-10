@@ -19,21 +19,11 @@ let UserService = require("./bin/UserService"); //Пользовательски
 let DataService = require("./bin/DataService"); //Данные основные
 
 
-
-var whitelist = ['http://localhost:8080', 'http://localhost'];
-var corsOptions = {
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    },
-    credentials: true,
-}
-
 // use it before all route definitions
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: "http://localhost",
+    credentials: true,
+}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(session({
