@@ -3,7 +3,8 @@
  */
 
 module.exports.DataServiceConfig = {
-    ip: 'localhost',
+    //ip: 'localhost',
+    ip: '89.31.33.164',
     port: 3666,
     db_host     : 'localhost',
     db_port     : 5502,
@@ -12,7 +13,8 @@ module.exports.DataServiceConfig = {
     db_database : 'servergprs'
 };
 module.exports.UserServiceConfig = {
-    ip: 'localhost',
+    //ip: 'localhost',
+    ip: '89.31.33.164',
     port: 3667,
     db_host     : 'localhost',
     db_port     : 5502,

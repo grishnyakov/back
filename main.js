@@ -52,6 +52,8 @@ app.post('/login', function (req, res) {
             if (result.length > 0) {
                 req.session.id_user = result[0].id;
                 res.send({success: true, login: result[0].login});
+            }        else {
+                res.send({success: false});
             }
         }
         else {

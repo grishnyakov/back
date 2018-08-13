@@ -25,7 +25,7 @@ let encryptPassword = function(password){
 };
 
 module.exports.registerUser = function (id_org, login, id_role, password, name1, name2, name3, number_tel, callback) {
-    if(!id_org) id_org = 0; // без организации
+    if(!id_org) id_org = 1; // без организации
     executeQuery('INSERT INTO users (`id_org`, `login`, `id_role`, `password`, `name1`, `name2`, `name3`, `number_tel`) ' +
         'VALUES(?, ?, ?, ?, ?, ?, ?, ?)',[ id_org, login, id_role, encryptPassword(password), name1, name2, name3, number_tel ],callback);
 };
@@ -64,6 +64,7 @@ module.exports.getOrgInfo = function (login,callback) {
 
 
 function executeQuery(query,params,callback) {
+    console.log(query)
     if(query && callback) {
         connectionUsers.query(query,params,
             function(error, result, fields){
