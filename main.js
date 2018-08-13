@@ -21,7 +21,7 @@ let DataService = require("./bin/DataService"); //Данные основные
 
 // use it before all route definitions
 app.use(cors({
-    origin: "http://localhost",
+    origin: "http://device.sit45.ru",
     credentials: true,
 }));
 app.use(bodyParser.json());
