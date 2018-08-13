@@ -21,7 +21,7 @@ let DataService = require("./bin/DataService"); //Данные основные
 
 // use it before all route definitions
 app.use(cors({
-    origin: "http://localhost",
+    origin: "http://device.sit45.ru",
     credentials: true,
 }));
 app.use(bodyParser.json());
@@ -52,6 +52,8 @@ app.post('/login', function (req, res) {
             if (result.length > 0) {
                 req.session.id_user = result[0].id;
                 res.send({success: true, login: result[0].login});
+            }        else {
+                res.send({success: false});
             }
         }
         else {
