@@ -23,11 +23,28 @@ let encryptPassword = function(password){
     console.log("hashPassword:",hashPassword);
     return hashPassword;
 };
+function executeQuery(query,params,callback) {
+    console.log(query)
+    if(query && callback) {
+        connectionUsers.query(query,params,
+            function(error, result, fields){
+                if(!error) {
+                    console.log(result);
+                    callback(result,error);
+                }
+                else{
+                    console.error(result);
+                    callback(result,error);
+                }
+            });
+    }
+    else throw Error("USERSERVICE:executeQuery - Empty query or callback. Tell me it's.");
+}
 
-module.exports.registerUser = function (id_org, login, id_role, password, name1, name2, name3, number_tel, callback) {
+module.exports.registerUser = function (id_org, login, id_role, password, name1, name2, name3, number_tel, email,callback) {
     if(!id_org) id_org = 1; // без организации
-    executeQuery('INSERT INTO users (`id_org`, `login`, `id_role`, `password`, `name1`, `name2`, `name3`, `number_tel`) ' +
-        'VALUES(?, ?, ?, ?, ?, ?, ?, ?)',[ id_org, login, id_role, encryptPassword(password), name1, name2, name3, number_tel ],callback);
+    executeQuery('INSERT INTO users (`id_org`, `login`, `id_role`, `password`, `name1`, `name2`, `name3`, `number_tel`, `email`) ' +
+        'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);',[ id_org, login, id_role, encryptPassword(password), name1, name2, name3,number_tel ,email ],callback);
 };
 
 module.exports.createPlace = function (data, callback) {
@@ -61,22 +78,9 @@ module.exports.getOrgInfo = function (login,callback) {
         'WHERE login = ?;',login,callback);
 };
 
+module.exports.changeUserStatus = function (status,email,callback) {
+    executeQuery(`UPDATE \`users\`.\`users\` SET \`status\`=? WHERE  \`email\`=?;`,[status,email],callback);
+};
 
 
-function executeQuery(query,params,callback) {
-    console.log(query)
-    if(query && callback) {
-        connectionUsers.query(query,params,
-            function(error, result, fields){
-                if(!error) {
-                    console.log(result);
-                    callback(result,error);
-                }
-                else{
-                    console.error(result);
-                    callback(result,error);
-                }
-            });
-    }
-    else throw Error("USERSERVICE:executeQuery - Empty query or callback. Tell me it's.");
-}
+
