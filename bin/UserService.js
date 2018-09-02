@@ -33,7 +33,7 @@ function executeQuery(query,params,callback) {
                     callback(result,error);
                 }
                 else{
-                    console.error(result);
+                    console.error(error);
                     callback(result,error);
                 }
             });
@@ -68,9 +68,15 @@ module.exports.logout = function (login, password,req, res) {
 module.exports.getUserIdByLogin = function (login, callback) {
     executeQuery('SELECT id FROM users WHERE login=?',login,callback);
 };
+module.exports.getUsersByLogin = function (login,callback) {
+    executeQuery('SELECT id,id_org, id_role, name1, name2, name3, number_tel, status, email FROM users WHERE login=?',login,callback);
+};
 module.exports.getUserLoginByID = function (id,callback) {
     executeQuery('SELECT login FROM users WHERE id=?',id,callback);
 };
+
+
+
 
 module.exports.getOrgInfo = function (login,callback) {
     executeQuery('SELECT organizations.* \n' +
@@ -78,8 +84,8 @@ module.exports.getOrgInfo = function (login,callback) {
         'WHERE login = ?;',login,callback);
 };
 
-module.exports.changeUserStatus = function (status,email,callback) {
-    executeQuery(`UPDATE \`users\`.\`users\` SET \`status\`=? WHERE  \`email\`=?;`,[status,email],callback);
+module.exports.changeUserStatus = function (status,login,callback) {
+    executeQuery(`UPDATE users.users SET status=? WHERE  login=?;`,[status,login],callback);
 };
 
 

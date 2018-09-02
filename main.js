@@ -10,7 +10,6 @@ let cors = require('cors');
 let path = require('path');
 
 
-
 let sessionHandler = require('./bin/session_handler');
 let store = sessionHandler.createStore();
 
@@ -36,10 +35,10 @@ app.use(session({
 
 let port = 7877;
 
-function sendResult(res,textError,fullError) {
-    res.send({success:  !textError , error: textError || '', fullError: fullError || ''});
-    if(textError || fullError){
-        console.error("error",textError,fullError);
+function sendResult(res, textError, fullError) {
+    res.send({success: !textError, text: textError || '', fullText: fullError || ''});
+    if (textError || fullError) {
+        console.error("error", textError, fullError);
     }
 }
 
@@ -55,20 +54,20 @@ app.post('/login', function (req, res) {
     UserService.login(req.body.login, req.body.password, function (result, error) {
         if (!error && result) {
             //console.log("createSession:result",result);
-            if (result.length > 0 ) {
-                if(result[0].status === 0){
+            if (result.length > 0) {
+                if (result[0].status === 0) {
                     req.session.id_user = result[0].id;
                     req.session.save();
                     res.send({success: true, login: result[0].login});
                 }
-                else  res.send({success: true, status: result[0].status});
+                else res.send({success: true, status: result[0].status});
             }
             else {
-                sendResult(res,"Пользователя с таким логином не зарегистрировано");
+                sendResult(res, "Логин или пароль неверный");
             }
         }
         else {
-            sendResult(res,'Непредвиденная ошибка авторизации',error);
+            sendResult(res, 'Непредвиденная ошибка авторизации', error);
         }
 
     });
@@ -81,40 +80,40 @@ app.post('/logout', function (req, res) {
     if (req.session) {
         req.session.destroy(function (err) {
             if (!err) sendResult(res);
-            else sendResult(res,'Не удалось выйти из системы', err);
+            else sendResult(res, 'Не удалось выйти из системы', err);
         });
     }
     else
-        sendResult(res,'Ошибка выхода - нет сессии');
+        sendResult(res, 'Ошибка выхода - нет сессии');
 
 });
 app.post('/user/getSession', function (req, res) {
     console.log("Client try get Session:", req.body);
-    if(req.session){
-        if(req.session.id_user)
+    if (req.session) {
+        if (req.session.id_user)
             UserService.getUserLoginByID(req.session.id_user, function (result, error) {
                 if (!error && result) {
                     //console.log("createSession:result",result);
                     if (result.length > 0) {
                         res.send({success: true, login: result[0].login});
                     }
-                    else sendResult(res,'Такого пользователя в системе не зарегистрировано');
+                    else sendResult(res, 'Такого пользователя в системе не зарегистрировано');
                 }
-                else sendResult(res,"Ошибка получения сессии",error);
+                else sendResult(res, "Ошибка получения сессии", error);
             });
         else sendResult(res);
     }
-    else  sendResult(res,'Нет сессии');
+    else sendResult(res, 'Нет сессии');
 });
 app.post('/reguser', function (req, res) {
     console.log("Client try REGISTER NEW USER:", req.body);
 
-    if (!req.body.login) sendResult(res,"Empty login");
-    else if (!req.body.password)  sendResult(res,"Empty password");
-    else if (!req.body.number_tel)  sendResult(res,"Empty number_tel");
-    else if (!req.body.id_role)  sendResult(res,"Empty id_role");
-    else if (!req.body.name1)  sendResult(res,"Empty name1");
-    else if (!req.body.email)  sendResult(res,"Empty email");
+    if (!req.body.login) sendResult(res, "Empty login");
+    else if (!req.body.password) sendResult(res, "Empty password");
+    else if (!req.body.number_tel) sendResult(res, "Empty number_tel");
+    else if (!req.body.id_role) sendResult(res, "Empty id_role");
+    else if (!req.body.name1) sendResult(res, "Empty name1");
+    else if (!req.body.email) sendResult(res, "Empty email");
     else {
         UserService.registerUser(
             req.body.id_org,
@@ -133,25 +132,29 @@ app.post('/reguser', function (req, res) {
                         EmailService.sendMail({
                             to: req.body.email,
                             subject: 'Успешная регистрация device.sit45.ru!',
-                            html: `<p>`+req.body.name1+`, поздравляем с успешной регистрацией в нашей системе!<br>
-                            Ваш логин: `+req.body.login+`<br>
-                            Ваш пароль: `+req.body.password+`<br>
-                            Но для входа в систему вам необходимо подтвердить адрес электронной почты<br>
-                            device.sit45.ru</p>`
+                            html: `<p>` + req.body.name1 + `, поздравляем с успешной регистрацией в нашей системе!<br/>
+                            Ваш логин: ` + req.body.login + `<br/>
+                            Ваш пароль: ` + req.body.password + `<br/>
+                            Но для входа в систему вам необходимо подтвердить адрес электронной почты<br/>
+                            device.sit45.ru</p>
+                            <br/>
+                            <br/>                
+                            <br/>
+                            ООО "СИТ" <br/>
+                            тел.: <br/>
+                            email: support@sit45.ru <br/>                
+`
                         });
                         res.send({success: true, id: id});
                     }
                 }
                 else {
                     console.error(error);
-                    sendResult(res,'Ошибка регистрации пользователя',error);
+                    sendResult(res, 'Ошибка регистрации пользователя', error);
                 }
             });
     }
 });
-
-
-
 
 
 app.post('/data/dangerlist', function (req, res) {
@@ -168,9 +171,9 @@ app.post('/data/messages', function (req, res) {
 });
 app.post('/data/devices', function (req, res) {
     console.log("client req getDevices");
-     //if(req.session.id)
-        DataService.getDevices(req, res);
-      //else res.status(403);
+    //if(req.session.id)
+    DataService.getDevices(req, res);
+    //else res.status(403);
 });
 app.post('/data/devices/bind', function (req, res) {
     console.log("client bind device");
@@ -194,67 +197,93 @@ app.post('/user/orginfo', function (req, res) {
 });
 app.post('/user/validateEmail', function (req, res) {
     console.log("Client try validateEmail:", req.body);
-    if(!req.body.email) return;
-    //RESTFUL !!!
-    switch (req.body.query){
-        case "sendCode": sendCode(); break;
-        case "checkCode": checkCode(); break;
-        default: break;
-    }
-    function sendCode() {
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min)) + min;
+    if (!req.body.login) sendResult(res, 'Нет логина');
+    else if (!req.body.query) sendResult(res, 'Нет запроса');
+    else {
+        switch (req.body.query) {
+            case "sendCode":
+                sendCode(req.body.login);
+                break;
+            case "checkCode":
+                checkCode(req.body.login, req.body.code);
+                break;
+            default:
+                break;
         }
-        let randomCode = getRandomInt(100000000,900000000);
 
-        req.session.codeValidation = randomCode;
-        req.session.save(function (err) {
-            //console.log('---------SAVE CODE-------',err);
-        });
-        // Message object
-        let message = {
-            // Comma separated list of recipients
-            to: req.body.email,
+        function sendCode(login) {
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
 
-            // Subject of the message
-            subject: 'Подтверждение регистрации',
+            let randomCode = getRandomInt(100000000, 900000000);
 
-            // HTML body
-            html: `<p>Для того, чтобы подтвердить, что этот почтовый адрес принаджеит вам, необходимо ввести этот код в поле на сайте device.sit45.ru<br>
-                  <h2> <b>`+randomCode+`<b/> </h2>
-               </p>`,
+            req.session.codeValidation = randomCode;
+            req.session.save(function (err) {
+                //console.log('---------SAVE CODE-------',err);
+            });
 
-        };
-        EmailService.sendMail(message);
-        sendResult(res);
-    }
-    function checkCode() {
-        if(+req.session.codeValidation === +req.body.code){
-            UserService.changeUserStatus(0,req.body.email,function (result) {
-                if(result){
+            UserService.getUsersByLogin(login, function (users) {
+                if (users.length === 1) {
                     // Message object
                     let message = {
                         // Comma separated list of recipients
-                        to: req.body.email,
+                        to: users[0].email,
 
                         // Subject of the message
-                        subject: 'Подтверждение регистрации',
+                        subject: 'Подтверждение адреса электронной почты',
 
                         // HTML body
-                        html: `<p>Поздравляем с успешной регистрацией! <br> <a href="http://device.sit45.ru">http://device.sit45.ru</a></p>`,
+                        html: `<p>Для того, чтобы подтвердить, что этот почтовый адрес принаджеит вам, необходимо ввести этот код в поле на сайте device.sit45.ru<br>
+                  <h2> <b>` + randomCode + `<b/> </h2>
+               </p>`,
                     };
                     EmailService.sendMail(message);
                     sendResult(res);
                 }
-                else {
-                    console.error(result);
-                    sendResult(res,'Не удалось сменить статус пользователя');
-                }
+                else sendResult(res, 'Не найдён пользователь с таким логином либо их несколько');
             });
+
         }
-        else sendResult(res,'Неверный код');
 
+        function checkCode(login, code) {
+            if (!req.body.code) sendResult(res, 'Нет кода');
+            else if (+req.session.codeValidation === +code) {
+                let newStatus = 0; // 0 - active
+                UserService.changeUserStatus(newStatus, login, function (result) {
+                    if (result) {
+                        UserService.getUsersByLogin(login, function (users) {
+                            if (users.length === 1) {
+                                // Message object
+                                let message = {
+                                    // Comma separated list of recipients
+                                    to: users[0].email,
 
+                                    // Subject of the message
+                                    subject: 'Подтверждение регистрации',
+
+                                    // HTML body
+                                    html: `<p>Поздравляем с успешной регистрацией! <br/>
+                                            Ваш логин: ${login}<br/>
+                                            ФИО: ${users[0].name1 + ' ' + users[0].name2 + ' ' + users[0].name3}<br/> 
+                                            <a href="http://device.sit45.ru">Перейти на страницу авторизации http://device.sit45.ru</a><br>
+                                    
+                                    </p>`,
+                                };
+                                EmailService.sendMail(message);
+                                sendResult(res);
+                            }
+                            else sendResult(res, 'Не найдён пользователь с таким логином либо их несколько');
+                        });
+                    }
+                    else {
+                        console.error(result);
+                        sendResult(res, 'Не удалось сменить статус пользователя');
+                    }
+                });
+            }
+            else sendResult(res, 'Неверный код');
+        }
     }
 });
 
