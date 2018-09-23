@@ -37,7 +37,7 @@ let updateDeviceFunction = (req, res, data) => {
             if (result === true) {
                 executeQuery('UPDATE devices SET `id_user`=?, `info`=?, `place_id`=?  WHERE `id`=?', [
                     req.session.id_user,
-                    req.body.info,
+                    data.info,
                     data.hasOwnProperty('place_id') ? data.place_id : null,
                     data.id_device
                 ], (result, error) => {
