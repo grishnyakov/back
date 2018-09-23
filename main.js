@@ -170,16 +170,37 @@ app.post('/data/messages', function (req, res) {
     // else res.status(403);
 });
 app.post('/data/devices', function (req, res) {
-    console.log("client req getDevices");
-    //if(req.session.id)
-    DataService.getDevices(req, res);
-    //else res.status(403);
-});
-app.post('/data/devices/bind', function (req, res) {
-    console.log("client bind device");
-    // if(req.session.login)
-    DataService.bindDevice(req, res);
-    //  else res.status(403);
+    console.log('/data/devices',req.body);
+    let type = req.body.type;
+    let query = req.body.query;
+
+    if(type && query){
+        switch (query) {
+            case 'UPDATE': UPDATE(type); break;
+            case 'SELECT': SELECT(type); break;
+        }
+    }
+    else errorTypeOrQuery();
+
+    function UPDATE(type) {
+        switch (type) {
+            case 'SETTINGS': DataService.updateDeviceSettings(req, res); break;
+            case 'BIND_DEVICE': DataService.bindDevice(req, res); break;
+            default: errorTypeOrQuery(); break;
+        }
+    }
+    function SELECT(type) {
+        switch (type) {
+            case 'DEVICES': DataService.getDevices(req, res); break;
+            default: errorTypeOrQuery(); break;
+        }
+
+    }
+
+    function errorTypeOrQuery() {
+        res.json({success: false, text: 'unknown type or query'});
+        console.error('unknown type or query: ',type,query);
+    }
 });
 
 

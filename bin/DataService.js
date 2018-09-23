@@ -16,9 +16,9 @@ connectionDevMes = mysql.createPool({
 });
 
 
-let checkPinDevice = (id_device,password) => {
+let checkPinDevice = (id_device, password) => {
     return new Promise((resolve, reject) => {
-        executeQuery('SELECT * FROM devices  WHERE `id`=? AND `password`=?', [id_device,password], (result, error) => {
+        executeQuery('SELECT * FROM devices  WHERE `id`=? AND `password`=?', [id_device, password], (result, error) => {
             if (!error) {
                 if (result.length > 0)
                     resolve(true);
@@ -30,33 +30,33 @@ let checkPinDevice = (id_device,password) => {
         });
     });
 };
-let updateDeviceFunction = (req, res, place_id) => {
-    console.log("updateDeviceFunction",req.body.id_device,req.body.pin);
-    checkPinDevice(req.body.id_device,req.body.pin)
+let updateDeviceFunction = (req, res, data) => {
+    console.log("updateDeviceFunction", data);
+    checkPinDevice(data.id_device, data.pin)
         .then(result => {
-            if(result === true){
+            if (result === true) {
                 executeQuery('UPDATE devices SET `id_user`=?, `info`=?, `place_id`=?  WHERE `id`=?', [
                     req.session.id_user,
                     req.body.info,
-                    place_id,
-                    req.body.id_device
+                    data.hasOwnProperty('place_id') ? data.place_id : null,
+                    data.id_device
                 ], (result, error) => {
                     if (!error) {
                         if (result.affectedRows > 0)
                             res.json({success: true});
                         else {
-                            returnError(res,"failed change device row")
+                            returnError(res, "failed change device row")
                         }
                     }
                     else returnError(res, error);
                 });
             }
             else {
-                returnError(res,"Неверный пароль или номер устройства");
+                returnError(res, "Неверный пароль или номер устройства");
             }
         })
         .catch(error => {
-            returnError(res,error);
+            returnError(res, error);
         });
 
 
@@ -162,50 +162,104 @@ module.exports.getDangerList = function (req, res) {
 
 };
 module.exports.getDevices = function (req, res) {
-    connectionDevMes.query('SELECT * FROM devices WHERE id_user = ?', [req.session.id_user], function (error, result, fields) {
+    connectionDevMes.query('SELECT * FROM devices WHERE id_user = ?', [req.session.id_user], function (error, resultQuery, fields) {
         if (!error) {
-            res.json({success: true, devices: result});
+            getDeviceSettings(res, resultQuery);
         }
         else {
             returnError(res, error.message);
         }
+
+        function getDeviceSettings(res, devices) {
+            let arrayDeviceId = devices.map(device => device.id);
+
+
+            connectionDevMes.query(
+                'SELECT * FROM device_settings INNER JOIN parametrs ON  parametrs.id = device_settings.id_parametr WHERE id_device IN (?)',
+                [arrayDeviceId],
+                function (error, resultQuery, fields) {
+                    devices.map(device => {
+                        if (!device.settings) device.settings = {};
+
+                        if (!error) {
+                            resultQuery.map(deviceSetting => {
+                                if (device.id === deviceSetting.id_device) {
+                                    device.settings[deviceSetting.short_name] = deviceSetting.value;
+                                }
+
+                            });
+                        }
+                        else {
+                            returnError(res, error.message);
+                        }
+
+                    });
+                    res.json({success: true, devices: devices});
+                });
+
+
+        }
     });
+
 };
+module.exports.updateDeviceSettings = function (req, res) {
+    if (req.body.hasOwnProperty('device')) {
+        let device = req.body.device;
+
+
+        let values = [];
+        for (let parameter in device.settings) {
+            values.push("(" + device.id + ",(SELECT id as idp FROM parametrs WHERE short_name = '" + parameter + "')," + Number(device.settings[parameter]) + ")");
+        }
+
+
+        let query = "REPLACE INTO device_settings (id_device, id_parametr, value) values " + values + ";";
+
+        connectionDevMes.query(query, function (error, resultQuery, fields) {
+            if (!error) {
+                res.json({success: true});
+            }
+            else
+                returnError(res, error.message);
+        });
+    } else
+        returnError(res, "device is undefined");
+
+
+};
+
 module.exports.bindDevice = function (req, res) {
     console.log('module.exports.bindDevice');
 
-    if(req.body.place_id)
-        UserService.getPlace(req.body.place_id, (result, error) => {
-        if (!error) {
-            if (result.length > 0) {
+    if (req.body.hasOwnProperty('data')) {
+        let data = req.body.data;
+        // UserService.getPlace(data.place_id, (result, error) => {
+        //     if (!error) {
+        //         if (result.length > 0) {
+        //
+        //         }
+        //         else {
+        //             UserService.createPlace(data, (result, error) => {
+        //                 if (!error)
+        //                     if (result.affectedRows > 0) {
+        //
+        //                     }
+        //                     else returnError(res, error);
+        //
+        //             });
+        //         }
+        //     }
+        //     else returnError(res, error);
+        // });
+        updateDeviceFunction(req, res, data);
+    } else returnError(res, "data is empty")
 
-            }
-            else {
-                let data = [
-                    req.body.place_id,
-                    req.body.lat,
-                    req.body.lng,
-                    req.body.formatted_address,
-                ];
-                UserService.createPlace(data, (result, error) => {
-                    if (!error)
-                        if (result.affectedRows > 0) {
 
-                        }
-                        else returnError(res, error);
-
-                });
-            }
-        }
-        else returnError(res, error);
-    });
-
-    updateDeviceFunction(req, res, req.body.place_id);
 }; //привязать устройство
 
 function returnError(res, error) {
     console.error(error);
-    if(res)
+    if (res)
         res.json({success: false, error: error});
 }
 
